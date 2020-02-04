@@ -8,7 +8,7 @@
 import React from 'react';
 import { render, act } from 'garden-test-utils';
 import mockDate from 'mockdate';
-import Spinner from './Spinner';
+import SpinnerContainer from './Spinner';
 
 jest.useFakeTimers();
 
@@ -28,13 +28,13 @@ describe('Spinner', () => {
 
   describe('Loading delay', () => {
     it('hides loader for initial delay', () => {
-      const { queryByTestId } = render(<Spinner data-test-id="spinner" />);
+      const { queryByTestId } = render(<SpinnerContainer data-test-id="spinner" />);
 
       expect(queryByTestId('spinner')).toBeNull();
     });
 
     it('shows loader after initial delay', () => {
-      const { queryByTestId } = render(<Spinner data-test-id="spinner" />);
+      const { queryByTestId } = render(<SpinnerContainer data-test-id="spinner" />);
 
       act(() => {
         jest.runOnlyPendingTimers();
@@ -46,7 +46,7 @@ describe('Spinner', () => {
 
   describe('Animation', () => {
     it('updates animation after request animation frame', () => {
-      const { container } = render(<Spinner data-test-id="spinner" />);
+      const { container } = render(<SpinnerContainer data-test-id="spinner" />);
 
       act(() => {
         jest.runOnlyPendingTimers();

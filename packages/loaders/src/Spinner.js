@@ -5,7 +5,7 @@
  * found at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -17,6 +17,9 @@ import { SpinnerCircle, StyledSVG, LoadingPlaceholder } from './styled-elements'
 import { useSchedule } from '@zendeskgarden/container-schedule';
 
 const COMPONENT_ID = 'loaders.spinner';
+const WIDTH = 80;
+const HEIGHT = 80;
+
 const totalFrames = 100;
 
 const computeFrames = (frames, duration) => {
@@ -43,30 +46,46 @@ const computeFrames = (frames, duration) => {
 };
 
 /** @component */
-export default function Spinner({
+function Spinner({ duration, frame }) {
+  const [strokeWidthValues, rotationValues, dasharrayValues] = useMemo(() => {
+    return [STROKE_WIDTH_FRAMES, ROTATION_FRAMES, DASHARRAY_FRAMES].map(frames =>
+      computeFrames(frames, duration)
+    );
+  }, [duration]);
+
+  const strokeWidthValue = strokeWidthValues[frame];
+  const rotationValue = rotationValues[frame];
+  const dasharrayValue = dasharrayValues[frame];
+
+  return (
+    <SpinnerCircle
+      dasharrayValue={dasharrayValue}
+      strokeWidthValue={strokeWidthValue}
+      transform={`rotate(${rotationValue}, ${WIDTH / 2}, ${HEIGHT / 2})`}
+    />
+  );
+}
+
+Spinner.propTypes = {
+  duration: PropTypes.number.isRequired,
+  frame: PropTypes.string.isRequired
+};
+
+/** @component */
+export default function SpinnerContainer({
   size = 'inherit',
   duration = 1250,
   color = 'inherit',
   delayMS = 750,
   ...other
 }) {
-  const strokeWidthValues = computeFrames(STROKE_WIDTH_FRAMES, duration);
-  const rotationValues = computeFrames(ROTATION_FRAMES, duration);
-  const dasharrayValues = computeFrames(DASHARRAY_FRAMES, duration);
-
   const { elapsed, delayComplete } = useSchedule({ duration, delayMS });
-  const frame = (elapsed * 100).toFixed(0);
-
-  const strokeWidthValue = strokeWidthValues[frame];
-  const rotationValue = rotationValues[frame];
-  const dasharrayValue = dasharrayValues[frame];
-
-  const WIDTH = 80;
-  const HEIGHT = 80;
 
   if (!delayComplete && delayMS !== 0) {
     return <LoadingPlaceholder fontSize={size}>&nbsp;</LoadingPlaceholder>;
   }
+
+  const frame = (elapsed * 100).toFixed(0);
 
   return (
     <StyledSVG
@@ -77,16 +96,12 @@ export default function Spinner({
       data-garden-id={COMPONENT_ID}
       {...other}
     >
-      <SpinnerCircle
-        dasharrayValue={dasharrayValue}
-        strokeWidthValue={strokeWidthValue}
-        transform={`rotate(${rotationValue}, ${WIDTH / 2}, ${HEIGHT / 2})`}
-      />
+      <Spinner frame={frame} duration={duration} />
     </StyledSVG>
   );
 }
 
-Spinner.propTypes = {
+SpinnerContainer.propTypes = {
   /**
    * Size of the loader. Can inherit from `font-size` styling.
    **/
