@@ -5,10 +5,5 @@
  * found at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-/* Globals */
-declare const PACKAGE_VERSION: string;
-
-/** Files */
-declare module '*.svg';
-
-declare module 'react-color';
+export { Example } from './elements/Example';
+export { ColorPicker } from './elements/ColorPicker';
