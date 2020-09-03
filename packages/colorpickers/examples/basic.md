@@ -44,17 +44,89 @@ const BasicExample = () => {
     };
   }, [showColorPicker]);
 
+  const [controlledColor, setControlledColor] = React.useState({
+    r: 180,
+    g: 218,
+    b: 85,
+    a: 0.5
+  });
+
+  const orange = {
+    r: 255,
+    g: 165,
+    b: 0
+  };
+
   return (
     <>
-      <button onClick={() => setShowColorPicker(!showColorPicker)}>Show Color Picker</button>
+      <button onClick={() => setShowColorPicker(!showColorPicker)}>
+        Show Uncontrolled Color Picker
+      </button>
       {showColorPicker ? (
         <div tabIndex={-1} style={{ width: '292px', position: 'absolute' }} ref={dialogRef}>
-          <ColorPicker ref={colorPickerRef} />
+          <ColorPicker ref={colorPickerRef} defaultColor="#b4da55" onChange={console.log} />
         </div>
       ) : null}
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <hr />
+      <br />
+      <span>Controlled Color Picker:</span>
+      <br />
+      <br />
+      <button onClick={() => setControlledColor(orange)}>Set to Orange</button>
+      <ColorPicker
+        ref={colorPickerRef}
+        color={controlledColor}
+        onChange={color => {
+          setControlledColor(color.rgb);
+          console.log(color);
+        }}
+      />
+      <br />
+      <br />
+      <hr />
+      <br />
+      <span>Uncontrolled Color Picker:</span>
+      <br />
+      <br />
+      <ColorPicker ref={colorPickerRef} onChange={console.log} defaultColor="#b4da55" />
     </>
   );
 };
 
 <BasicExample />;
 ```
+
+<!-- <button onClick={() => setShowColorPicker(!showColorPicker)}>Show Color Picker</button>
+      {showColorPicker ? (
+        <div tabIndex={-1} style={{ width: '292px', position: 'absolute' }} ref={dialogRef}>
+          <ColorPicker ref={colorPickerRef} defaultColor="#b4da55" onChange={console.log} />
+        </div>
+      ) : null} -->
+
+<!-- <ColorPicker
+        ref={colorPickerRef}
+        defaultColor="#b4da55"
+        onChange={c => {
+          console.log(c, '<-- state from uncontrolled');
+        }}
+      /> -->

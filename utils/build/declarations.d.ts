@@ -12,3 +12,5 @@ declare const PACKAGE_VERSION: string;
 declare module '*.svg';
 
 declare module 'react-color';
+
+declare module 'react-color/lib/components/common';
