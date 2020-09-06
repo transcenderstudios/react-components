@@ -49,19 +49,24 @@ function reducer(state: any, action: any) {
         rgbString: tinycolor(payload).toRgbString()
       };
     case 'HUE SLIDER CHANGE':
+      const prevAlpha = state.rgb.a;
+      let nextColor = tinycolor(payload.hex).toRgb();
+
+      nextColor.a = prevAlpha;
+
       return {
-        hex: payload.hex,
-        hsl: payload.hsl,
-        hsv: payload.hsv,
-        rgb: payload.rgb,
-        rgbString: tinycolor(payload.rgb).toRgbString()
+        hex: tinycolor(nextColor).toHexString(),
+        hsl: tinycolor(nextColor).toHsl(),
+        hsv: tinycolor(nextColor).toHsv(),
+        rgb: tinycolor(nextColor).toRgb(),
+        rgbString: tinycolor(nextColor).toRgbString()
       };
     case 'ALPHA SLIDER CHANGE':
       return {
-        hex: payload.hex,
-        hsl: payload.hsl,
-        hsv: payload.hsv,
-        rgb: payload.rgb,
+        hex: tinycolor(payload.rgb).toHex8String(),
+        hsl: tinycolor(payload.rgb).toHsl(),
+        hsv: tinycolor(payload.rgb).toHsv(),
+        rgb: tinycolor(payload.rgb).toRgb(),
         rgbString: tinycolor(payload.rgb).toRgbString()
       };
     case 'HEX CHANGE':
@@ -79,7 +84,7 @@ function reducer(state: any, action: any) {
         ...state,
         hex: payload.hex
       };
-    case 'RGBA CHANGE': {
+    case 'RGB CHANGE': {
       const { rgb } = state;
       const { r, g, b, a } = payload;
       const nextRgb = {
@@ -89,7 +94,7 @@ function reducer(state: any, action: any) {
         a: a || rgb.a
       };
       return {
-        hex: tinycolor(nextRgb).toHexString(),
+        hex: nextRgb.a > 0 ? tinycolor(nextRgb).toHex8String() : tinycolor(nextRgb).toHexString(),
         hsl: tinycolor(nextRgb).toHsl(),
         hsv: tinycolor(nextRgb).toHsv(),
         rgb: nextRgb,
@@ -137,15 +142,42 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
     rgbString: tinycolor(props.color).toRgbString()
   };
 
+  console.log(tinycolor('rgb(255,0,255,0.5)').toRgb());
+
   const state = isControlled ? controlledState : uncontrolledState;
 
   const { onChange, ...other } = props;
 
   const onHuePickerChange = (colorPickerState: any) => {
     if (isControlled) {
-      onChange && onChange(colorPickerState);
+      if (props.color.length === 8 && props.color.includes('#')) {
+        const a = tinycolor(props.color).getAlpha();
+        const rgba = { ...colorPickerState.rgb, a };
+
+        onChange({
+          hex: tinycolor(rgba).toHexString(),
+          rgb: tinycolor(rgba).toRgb(),
+          rgbString: tinycolor(rgba).toRgbString()
+        });
+      } else {
+        const prevAlpha = state.rgb.a;
+        const rgba = { ...colorPickerState.rgb, a: prevAlpha };
+
+        onChange &&
+          onChange({
+            hex: tinycolor(rgba).toHexString(),
+            rgb: tinycolor(rgba).toRgb(),
+            rgbString: tinycolor(rgba).toRgbString()
+          });
+      }
     } else {
       dispatch({ type: 'HUE SLIDER CHANGE', payload: colorPickerState });
+      onChange &&
+        onChange({
+          hex: colorPickerState.hex,
+          rgb: colorPickerState.rgb,
+          rgbString: colorPickerState.rgbString
+        });
     }
   };
 
@@ -155,9 +187,7 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
 
       onChange &&
         onChange({
-          hex: tinycolor(props.color).toHexString(),
-          hsl: tinycolor(props.color).toHsl(),
-          hsv: tinycolor(props.color).toHsv(),
+          hex: tinycolor(nextRgb).toHex8String(),
           rgb: nextRgb,
           rgbString: tinycolor(nextRgb).toRgbString()
         });
@@ -165,18 +195,23 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
 
     if (isControlled === false) {
       dispatch({ type: 'ALPHA SLIDER CHANGE', payload: colorPickerState });
-      onChange && onChange(state);
+      onChange &&
+        onChange({
+          hex: state.hex,
+          rgb: state.rgb,
+          rgbString: state.rgbString
+        });
     }
   };
 
   const onSaturationChange = (hsv: any, event: any) => {
     if (isControlled) {
+      const prevAlpha = state.rgb.a;
+      const rgba = { ...tinycolor(hsv).toRgb(), a: prevAlpha };
       const controlledState = {
-        hex: tinycolor(hsv).toHexString(),
-        hsl: tinycolor(hsv).toHsl(),
-        hsv: tinycolor(hsv).toHsv(),
-        rgb: tinycolor(hsv).toRgb(),
-        rgbString: tinycolor(hsv).toRgbString()
+        hex: tinycolor(rgba).toHexString(),
+        rgb: tinycolor(rgba).toRgb(),
+        rgbString: tinycolor(rgba).toRgbString()
       };
       props.onChange && props.onChange(controlledState);
     } else {
@@ -186,19 +221,18 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
   };
 
   const onHexInputChange = (e: any) => {
-    if (tinycolor(e.target.value).isValid()) {
+    const value = e.target.value;
+    if (isControlled) {
+      onChange && onChange({ hex: value });
+    } else {
       onChange &&
         onChange({
-          hex: tinycolor(e.target.value).toHexString(),
-          hsl: tinycolor(e.target.value).toHsl(),
-          hsv: tinycolor(e.target.value).toHsv(),
-          rgb: tinycolor(e.target.value).toRgb(),
-          rgbString: tinycolor(e.target.value).toRgbString()
+          hex: tinycolor(value).toHexString(),
+          rgb: tinycolor(value).toRgb(),
+          rgbString: tinycolor(value).toRgbString()
         });
-    }
 
-    if (isControlled === false) {
-      dispatch({ type: 'HEX CHANGE', payload: { hex: e.target.value } });
+      dispatch({ type: 'HEX CHANGE', payload: { hex: value } });
     }
   };
 
@@ -210,11 +244,28 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
       onChange && onChange({ rgb: nextRgb });
     } else {
       dispatch({
-        type: 'RGBA CHANGE',
+        type: 'RGB CHANGE',
         payload: { [rgbColor]: e.target.value }
       });
+      console.log({
+        hex: state.hex,
+        rgb: state.rgb,
+        rgbString: state.rgbString
+      });
+      onChange &&
+        onChange({
+          hex: state.hex,
+          rgb: state.rgb,
+          rgbString: state.rgbString
+        });
     }
   };
+
+  let controlledHexInput = props.color;
+
+  if (typeof controlledHexInput === 'string' && controlledHexInput.includes('#') === false) {
+    controlledHexInput = tinycolor(props.color).toHexString();
+  }
 
   return (
     <div ref={ref} className="App" style={{ width: '292px' }} {...other}>
@@ -271,7 +322,7 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
           <StyledHexLabel htmlFor="hex-input">Hex</StyledHexLabel>
           <StyledHexInput
             id="hex-input"
-            value={state.hex}
+            value={isControlled ? controlledHexInput : state.hex}
             defaultValue={isControlled ? tinycolor(props.color).toHexString() : state.hex}
             onChange={onHexInputChange}
           />
@@ -324,7 +375,7 @@ export const ColorPicker = React.forwardRef<HTMLDivElement, IColorPickerProps>((
             max="1"
             min="0"
             type="number"
-            value={isControlled ? tinycolor(props.color).toRgb().a : state.rgb.a}
+            value={isControlled ? tinycolor(props.color).getAlpha() : state.rgb.a}
             onChange={onRgbInputChange}
           />
         </div>
