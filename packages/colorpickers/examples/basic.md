@@ -86,59 +86,48 @@ const BasicExample = () => {
             <ColorPicker
               ref={colorPickerRef}
               color={controlledHex}
-              onChange={color => {
-                setControlledHex(color.hex);
+              onChange={(event, color) => {
+                setControlledHex(color.str);
               }}
             />
-            <button onClick={() => setControlledHex(orange)}>Set to #FFA500</button>
           </div>
         </>
       ) : null}
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <hr />
-      <br />
-      <span>Controlled RGB Color Picker:</span>
-      <br />
-      <br />
-      <button onClick={() => setControlledRgb(magenta)}>Set to rgb(255,0,255, 0.5)</button>
-      <ColorPicker
-        ref={colorPickerRef}
-        color={controlledRgb}
-        onChange={color => {
-          setControlledRgb(color.rgbString);
-        }}
-      />
-      <br />
-      <br />
-      <hr />
-      <br />
-      <span>Uncontrolled Color Picker:</span>
-      <br />
-      <br />
-      <ColorPicker ref={colorPickerRef} onChange={console.log} defaultColor="#b4da55" />
     </>
   );
 };
 
-<BasicExample />;
+<>
+  <BasicExample />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <hr />
+  <br />
+  <span>Uncontrolled ColorPicker</span>
+  <ColorPicker />
+
+  <span>Uncontrolled ColorPicker no alpha</span>
+  <ColorPicker alphaType="none" />
+</>;
 ```
 
 <!-- <button onClick={() => setShowColorPicker(!showColorPicker)}>Show Color Picker</button>

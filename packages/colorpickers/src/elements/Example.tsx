@@ -320,7 +320,6 @@ interface IExampleProps extends HTMLAttributes<HTMLDivElement> {
 export const Example = React.forwardRef<HTMLDivElement, IExampleProps>((props, ref) => (
   <>
     <StyledExample ref={ref} {...props} />
-    <ColorPicker />
   </>
 ));
 

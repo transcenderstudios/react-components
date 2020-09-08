@@ -5,5 +5,4 @@
  * found at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-export { Example } from './elements/Example';
 export { ColorPicker } from './elements/ColorPicker';
